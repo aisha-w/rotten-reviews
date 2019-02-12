@@ -2,26 +2,26 @@ import * as cheerio from 'cheerio'
 import fetch from 'isomorphic-fetch'
 import encode from 'strict-uri-encode'
 
-export interface SearchResult {
+export declare interface SearchResult {
   title: string
   year: number
   type: string
   slug: string
 }
 
-interface SearchMovieResult {
+declare interface SearchMovieResult {
   name: string
   year: number
   url: string
 }
 
-interface SearchTvResult {
+declare interface SearchTvResult {
   title: string
   startYear: number
   url: string
 }
 
-export interface ScrapeResult {
+export declare interface ScrapeResult {
   reviewer: String
   date: String
   stars: Number
@@ -37,8 +37,9 @@ const MAX_TOTAL_REVIEWS: number = MAX_VISITABLE_PAGE * MAX_REVIEWS_PER_PAGE
  * @param {string} query
  * @returns {string}
  */
-const createSearchUrl = (query: string): string =>
-  `${BASE_URL}/api/private/v2.0/search?q=${encode(query)}`
+function createSearchUrl(query: string): string {
+  return `${BASE_URL}/api/private/v2.0/search?q=${encode(query)}`
+}
 
 /**
  * @typedef {{title: string, year: number, type: string, slug: string}} SearchResult
@@ -47,7 +48,7 @@ const createSearchUrl = (query: string): string =>
  * @param {string} query
  * @returns {Promise<SearchResult[]>}
  */
-export const searchByQuery = async (query: string): Promise<SearchResult[]> => {
+export async function searchByQuery(query: string): Promise<SearchResult[]> {
   const res = await fetch(createSearchUrl(query))
 
   const {
@@ -99,10 +100,10 @@ export const searchByQuery = async (query: string): Promise<SearchResult[]> => {
  * @param {number} [pageNumber=1]
  * @returns {string}
  */
-export const createUrlFromSlug = (
+export function createUrlFromSlug(
   slug: string,
   pageNumber: number = 1
-): string => {
+): string {
   const page = Math.min(Math.max(1, pageNumber), MAX_VISITABLE_PAGE)
 
   return `${BASE_URL}/${slug}/reviews/?page=${page}&type=user&sort=`
@@ -113,9 +114,7 @@ export const createUrlFromSlug = (
  * @param {string} url
  * @returns {Promise<ScrapeResult[]>}
  */
-export const scrapeFromPageUrl = async (
-  url: string
-): Promise<ScrapeResult[]> => {
+export async function scrapeFromPageUrl(url: string): Promise<ScrapeResult[]> {
   const reviews: ScrapeResult[] = []
 
   const res = await fetch(url)
@@ -152,10 +151,10 @@ export const scrapeFromPageUrl = async (
  * @param {number} [reviewCount=MAX_REVIEWS_PER_PAGE]
  * @returns {Promise<ScrapeResult[]>}
  */
-export const scrapeReviews = async (
+export async function scrapeReviews(
   slug: string,
   reviewCount: number = MAX_REVIEWS_PER_PAGE
-): Promise<ScrapeResult[]> => {
+): Promise<ScrapeResult[]> {
   const desiredReviewCount = Math.max(
     MAX_REVIEWS_PER_PAGE,
     Math.min(reviewCount, MAX_TOTAL_REVIEWS)

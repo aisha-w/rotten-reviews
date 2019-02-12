@@ -31,10 +31,10 @@
     "@types/cheerio": "^0.22.10",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/strict-uri-encode": "^2.0.0",
-    "rollup": "^0.68.1",
-    "rollup-plugin-typescript2": "^0.18.1",
+    "rollup": "^1.1.2",
+    "rollup-plugin-typescript2": "^0.19.2",
     "tslib": "^1.9.3",
-    "typescript": "^3.2.2"
+    "typescript": "^3.3.3"
   },
   "license": "MIT"
 }
