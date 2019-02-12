@@ -176,5 +176,4 @@ MIT
 [typescript]: https://github.com/Microsoft/TypeScript
 [tslib]: https://github.com/Microsoft/tslib
 
-
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fninetwenty-one%2Frotten-reviews.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fninetwenty-one%2Frotten-reviews?ref=badge_large)

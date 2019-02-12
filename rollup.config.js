@@ -4,8 +4,8 @@ import pkg from './package.json'
 
 export default [
   {
-    input: 'src/index.ts',
-    external: ['cheerio', 'isomorphic-fetch', 'strict-uri-encode'],
+    input: ['src/index.ts'],
+    external: ['cheerio', 'node-fetch', 'strict-uri-encode'],
     output: [
       {
         file: pkg.main,

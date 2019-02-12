@@ -1,13 +1,11 @@
 import * as cheerio from 'cheerio'
-import fetch from 'isomorphic-fetch'
+import fetch from 'node-fetch'
 import encode from 'strict-uri-encode'
 
-export declare interface SearchResult {
-  title: string
-  year: number
-  type: string
-  slug: string
-}
+const BASE_URL = 'https://www.rottentomatoes.com'
+const MAX_REVIEWS_PER_PAGE = 20
+const MAX_VISITABLE_PAGE = 51
+const MAX_TOTAL_REVIEWS = MAX_VISITABLE_PAGE * MAX_REVIEWS_PER_PAGE
 
 declare interface SearchMovieResult {
   name: string
@@ -21,58 +19,39 @@ declare interface SearchTvResult {
   url: string
 }
 
-export declare interface ScrapeResult {
+declare interface RawSearchResult {
+  movies: SearchMovieResult[]
+  tvSeries: SearchTvResult[]
+}
+
+declare interface SearchResult {
+  title: string
+  year: number
+  type: string
+  slug: string
+}
+
+declare interface ScrapeResult {
   reviewer: String
   date: String
   stars: Number
   review: String
 }
 
-const BASE_URL: string = 'https://www.rottentomatoes.com'
-const MAX_REVIEWS_PER_PAGE: number = 20
-const MAX_VISITABLE_PAGE: number = 51
-const MAX_TOTAL_REVIEWS: number = MAX_VISITABLE_PAGE * MAX_REVIEWS_PER_PAGE
-
-/**
- * @param {string} query
- * @returns {string}
- */
-function createSearchUrl(query: string): string {
+function createSearchUrl(query: string) {
   return `${BASE_URL}/api/private/v2.0/search?q=${encode(query)}`
 }
 
-/**
- * @typedef {{title: string, year: number, type: string, slug: string}} SearchResult
- * @typedef {{name: string, year: number, url: string}} SearchMovieResult
- * @typedef {{title: string, startYear: number, url: string}} SearchTvResult
- * @param {string} query
- * @returns {Promise<SearchResult[]>}
- */
-export async function searchByQuery(query: string): Promise<SearchResult[]> {
+function sortByYear(a: SearchResult, b: SearchResult) {
+  if (a.year > b.year) return -1
+  if (a.year < b.year) return 1
+  return 0
+}
+
+export async function searchByQuery(query: string) {
   const res = await fetch(createSearchUrl(query))
 
-  const {
-    movies,
-    tvSeries,
-  }: {
-    movies: SearchMovieResult[]
-    tvSeries: SearchTvResult[]
-  } = await res.json()
-
-  /**
-   * @param {SearchResult} a
-   * @param {SearchResult} b
-   * @returns {number}
-   */
-  const sortByYear = (a: SearchResult, b: SearchResult): number => {
-    if (a.year > b.year) {
-      return -1
-    }
-    if (a.year < b.year) {
-      return 1
-    }
-    return 0
-  }
+  const { movies, tvSeries }: RawSearchResult = await res.json()
 
   const movieResults: SearchResult[] = movies.map(
     ({ name, year, url }): SearchResult => ({
@@ -92,29 +71,16 @@ export async function searchByQuery(query: string): Promise<SearchResult[]> {
     })
   )
 
-  return movieResults.concat(tvResults).sort(sortByYear)
+  return [...movieResults, ...tvResults].sort(sortByYear)
 }
 
-/**
- * @param {string} slug
- * @param {number} [pageNumber=1]
- * @returns {string}
- */
-export function createUrlFromSlug(
-  slug: string,
-  pageNumber: number = 1
-): string {
+export function createUrlFromSlug(slug: string, pageNumber: number = 1) {
   const page = Math.min(Math.max(1, pageNumber), MAX_VISITABLE_PAGE)
 
   return `${BASE_URL}/${slug}/reviews/?page=${page}&type=user&sort=`
 }
 
-/**
- * @typedef {{reviewer: String, date: String, stars: Number, review: String}} ScrapeResult
- * @param {string} url
- * @returns {Promise<ScrapeResult[]>}
- */
-export async function scrapeFromPageUrl(url: string): Promise<ScrapeResult[]> {
+export async function scrapeFromPageUrl(url: string) {
   const reviews: ScrapeResult[] = []
 
   const res = await fetch(url)
@@ -146,20 +112,16 @@ export async function scrapeFromPageUrl(url: string): Promise<ScrapeResult[]> {
   return reviews
 }
 
-/**
- * @param {string} slug
- * @param {number} [reviewCount=MAX_REVIEWS_PER_PAGE]
- * @returns {Promise<ScrapeResult[]>}
- */
-export async function scrapeReviews(
-  slug: string,
-  reviewCount: number = MAX_REVIEWS_PER_PAGE
-): Promise<ScrapeResult[]> {
-  const desiredReviewCount = Math.max(
-    MAX_REVIEWS_PER_PAGE,
-    Math.min(reviewCount, MAX_TOTAL_REVIEWS)
-  )
-  const pageCount = Math.ceil(desiredReviewCount / MAX_REVIEWS_PER_PAGE)
+export async function scrapeReviews(slug: string, desiredReviewCount?: number) {
+  const reviewCount =
+    typeof desiredReviewCount === 'undefined'
+      ? MAX_REVIEWS_PER_PAGE
+      : Math.max(
+          MAX_REVIEWS_PER_PAGE,
+          Math.min(desiredReviewCount, MAX_TOTAL_REVIEWS)
+        )
+
+  const pageCount = Math.ceil(reviewCount / MAX_REVIEWS_PER_PAGE)
 
   const pagesReviews: ScrapeResult[][] = await Promise.all(
     Array.from(Array(pageCount), (x, i) => {
@@ -168,5 +130,5 @@ export async function scrapeReviews(
     })
   )
 
-  return pagesReviews.reduce((a, b) => a.concat(b)).slice(0, reviewCount)
+  return pagesReviews.reduce((a, b) => a.concat(b)).slice(0, desiredReviewCount)
 }

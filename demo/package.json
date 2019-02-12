@@ -5,7 +5,7 @@
   "author": "Griko Nibras <griko@ninetwenty.one> (https://ninetwenty.one)",
   "main": "index.js",
   "dependencies": {
-    "rotten-reviews": "^2.2.0"
+    "rotten-reviews": "^2.3.*"
   },
   "license": "MIT",
   "private": true

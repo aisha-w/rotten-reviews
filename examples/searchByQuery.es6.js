@@ -1,4 +1,4 @@
-import { searchByQuery } from '../dist/index.esm'
+import { searchByQuery } from '..'
 
 searchByQuery('venom').then(results => {
   console.log(JSON.stringify(results, null, 2))
