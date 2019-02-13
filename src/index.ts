@@ -115,15 +115,16 @@ export async function scrapeFromPageUrl(url: string) {
 export async function scrapeReviews(slug: string, desiredReviewCount?: number) {
   const reviewCount =
     typeof desiredReviewCount === 'undefined'
-      ? MAX_REVIEWS_PER_PAGE
-      : Math.max(
-          MAX_REVIEWS_PER_PAGE,
-          Math.min(desiredReviewCount, MAX_TOTAL_REVIEWS)
-        )
+      ? MAX_TOTAL_REVIEWS
+      : desiredReviewCount
+
+  if (reviewCount <= 0) {
+    throw new Error('Given review count is invalid')
+  }
 
   const pageCount = Math.ceil(reviewCount / MAX_REVIEWS_PER_PAGE)
 
-  const pagesReviews: ScrapeResult[][] = await Promise.all(
+  const pagesReviews = await Promise.all(
     Array.from(Array(pageCount), (x, i) => {
       const url = createUrlFromSlug(slug, i)
       return scrapeFromPageUrl(url)

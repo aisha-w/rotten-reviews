@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "rotten-lambda",
+  "alias": ["rotten-lambda.now.sh", "rotten-reviews.now.sh"],
+  "builds": [{ "src": "demo/index.js", "use": "@now/node" }],
+  "github": { "enabled": true, "autoAlias": true },
+  "public": true,
+  "regions": ["all"],
+  "routes": [{ "src": "/.*", "dest": "/demo" }]
+}

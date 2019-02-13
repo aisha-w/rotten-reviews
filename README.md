@@ -139,7 +139,7 @@ Example queries:
 
 - [`rotten-lambda.now.sh/?q=spider%20verse`](https://rotten-lambda.now.sh/?q=spider%20verse) to search titles
 - [`rotten-lambda.now.sh/?s=m/venom_2018`](https://rotten-lambda.now.sh/?s=m/venom_2018) to scrape reviews
-- [`rotten-lambda.now.sh/?s=m/venom_2018&c=3`](https://rotten-lambda.now.sh/?s=m/venom_2018) to scrape only 3 first reviews
+- [`rotten-lambda.now.sh/?s=m/venom_2018&c=3`](https://rotten-lambda.now.sh/?s=m/venom_2018&c=3) to scrape only 3 first reviews
 
 You can view the source code for the deployment on the [demo directory](demo) or on the [deployment source page](https://rotten-lambda.now.sh/_src).
 

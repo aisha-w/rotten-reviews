@@ -7,9 +7,9 @@ const { searchByQuery, scrapeReviews } = require('rotten-reviews')
  */
 module.exports = async (req, res) => {
   const { query } = parse(req.url, true)
-  const { s = null, c = 10, q = null } = query
+  const { s = null, q = null, c = undefined } = query
 
-  if (s && c) {
+  if (s) {
     const results = await scrapeReviews(s, c)
     res.end(JSON.stringify(results, null, 2))
     return
@@ -22,7 +22,8 @@ module.exports = async (req, res) => {
   }
 
   res.writeHead(301, {
-    Location: 'https://github.com/ninetwenty-one/rotten-reviews',
+    Location:
+      'https://github.com/ninetwenty-one/rotten-reviews#lambda-deployment',
   })
   res.end()
 }
